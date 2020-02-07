@@ -1,3 +1,4 @@
 the zip file contains the projct I am reworking.
 it has the old code and info on the original build
-hope it is useful to suit our needs
+by pete kvitek
+pete@kvitek.com
