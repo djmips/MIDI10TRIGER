@@ -1,6 +1,6 @@
-// Copyright 2009 Olivier Gillet.
+// Copyright 2009 Emilie Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -46,6 +46,14 @@ inline void Boot(bool init_timers) {
 
 #ifdef HAS_USART1
   UCSR1B = 0;
+#endif
+
+#ifdef HAS_USART2
+  UCSR2B = 0;
+#endif
+
+#ifdef HAS_USART3
+  UCSR3B = 0;
 #endif
 }
 

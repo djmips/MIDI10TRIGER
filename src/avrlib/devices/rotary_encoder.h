@@ -1,6 +1,6 @@
-// Copyright 2010 Olivier Gillet.
+// Copyright 2010 Emilie Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -42,6 +42,11 @@ class RotaryEncoder {
   }
 
   static inline int8_t Read() {
+    ReadSwitch();
+    return ReadEncoder();
+  }
+  
+  static inline int8_t ReadEncoder() {
     int8_t increment = 0;
     uint8_t a = SwitchA::Read();
     uint8_t b = SwitchB::Read();
@@ -52,10 +57,15 @@ class RotaryEncoder {
         increment = -1;
       }
     }
-    SwitchClick::Read();
     return increment;
   }
+  
+  static uint8_t ReadSwitch() {
+    return SwitchClick::Read();
+  }
 
+  static uint8_t low() { return SwitchClick::low(); }
+  static uint8_t lowered() { return SwitchClick::lowered(); }
   static uint8_t clicked() { return SwitchClick::raised(); }
   static uint8_t immediate_value() { return SwitchClick::immediate_value(); }
 

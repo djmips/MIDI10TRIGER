@@ -1,6 +1,6 @@
-# Copyright 2009 Olivier Gillet.
+# Copyright 2009 Emilie Gillet.
 #
-# Author: Olivier Gillet (ol.gillet@gmail.com)
+# Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,24 +13,43 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AVRLIB_TOOLS_PATH = /usr/local/CrossPack-AVR/bin/
-AVRLIB_ETC_PATH   = /usr/local/CrossPack-AVR/etc/
-# AVRLIB_TOOLS_PATH = /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/
-# AVRLIB_ETC_PATH   = /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/etc/
+AVRLIB_TOOLS_PATH ?= /usr/local/CrossPack-AVR/bin/
 BUILD_ROOT     = build/
 BUILD_DIR      = $(BUILD_ROOT)$(TARGET)/
-PROGRAMMER     = avrispmkII
+PROGRAMMER     ?= avrispmkII
+PROGRAMMER_PORT ?= usb
+AVRDUDE_ERASE  ?= no
+AVRDUDE_LOCK   ?= yes
 
+ifeq ($(FAMILY),tiny)
+MCU            = attiny$(MCU_NAME)
+DMCU           = t$(MCU_NAME)
+MCU_DEFINE     = ATTINY$(MCU_NAME)
+else
+ifeq ($(MCU_NAME),atmega2560)
+MCU=atmega2560
+DMCU=atmega2560
+MCU_DEFINE=ATMEGA2560
+else
+ifeq ($(FAMILY),mega)
+MCU            = atmega$(MCU_NAME)
+DMCU           = atmega$(MCU_NAME)
+MCU_DEFINE     = ATMEGA$(MCU_NAME)
+else
 MCU            = atmega$(MCU_NAME)p
 DMCU           = m$(MCU_NAME)p
 MCU_DEFINE     = ATMEGA$(MCU_NAME)P
-F_CPU          = 20000000
+endif
+endif
+endif
+
+F_CPU          ?= 20000000
 
 VPATH          = $(PACKAGES)
 CC_FILES       = $(notdir $(wildcard $(patsubst %,%/*.cc,$(PACKAGES))))
 C_FILES        = $(notdir $(wildcard $(patsubst %,%/*.c,$(PACKAGES))))
-AS_FILES       = $(notdir $(wildcard $(patsubst %,%/*.as,$(PACKAGES))))
-OBJ_FILES      = $(CC_FILES:.cc=.o) $(C_FILES:.c=.o) $(AS_FILES:.S=.o)
+AS_FILES       = $(notdir $(wildcard $(patsubst %,%/*.s,$(PACKAGES))))
+OBJ_FILES      = $(CC_FILES:.cc=.o) $(C_FILES:.c=.o) $(AS_FILES:.s=.o)
 OBJS           = $(patsubst %,$(BUILD_DIR)%,$(OBJ_FILES))
 DEPS           = $(OBJS:.o=.d)
 
@@ -54,6 +73,7 @@ CAT            = cat
 CPPFLAGS      = -mmcu=$(MCU) -I. \
 			-g -Os -w -Wall \
 			-DF_CPU=$(F_CPU) \
+			-D__PROG_TYPES_COMPAT__ \
 			-fdata-sections \
 			-ffunction-sections \
 			-fshort-enums \
@@ -114,11 +134,20 @@ $(BUILD_DIR)%.sym: $(BUILD_DIR)%.elf
 # AVRDude
 # ------------------------------------------------------------------------------
 
-AVRDUDE_CONF     = $(AVRLIB_ETC_PATH)avrdude.conf
 AVRDUDE_COM_OPTS = -V -p $(DMCU)
-AVRDUDE_COM_OPTS += -C $(AVRDUDE_CONF)
-AVRDUDE_ISP_OPTS = -c $(PROGRAMMER) -P usb
+AVRDUDE_ISP_OPTS = -c $(PROGRAMMER) -P $(PROGRAMMER_PORT)
 
+ifeq ($(AVRDUDE_LOCK),no)
+AVRDUDE_LOCK_OPTS =
+else
+AVRDUDE_LOCK_OPTS ?= -U lock:w:0x$(LOCK):m
+endif
+
+ifeq ($(AVRDUDE_ERASE),no)
+AVRDUDE_ERASE_OPTS = 
+else
+AVRDUDE_ERASE_OPTS ?= -D
+endif
 # ------------------------------------------------------------------------------
 # Main targets
 # ------------------------------------------------------------------------------
@@ -136,9 +165,14 @@ $(DEP_FILE):  $(BUILD_DIR) $(DEPS)
 
 bin:	$(TARGET_BIN)
 
+
 upload:    $(TARGET_HEX)
-		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) \
-			-U flash:w:$(TARGET_HEX):i -U lock:w:0x$(LOCK):m
+		$(AVRDUDE) $(AVRDUDE_ERASE_OPTS) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) \
+			-B 1 -U flash:w:$(TARGET_HEX):i $(AVRDUDE_LOCK_OPTS) 
+
+slow_upload:    $(TARGET_HEX)
+		$(AVRDUDE) $(AVRDUDE_ERASE_OPTS) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) \
+			-B 4 -U flash:w:$(TARGET_HEX):i $(AVRDUDE_LOCK_OPTS)
 
 clean:
 		$(REMOVE) $(OBJS) $(TARGETS) $(DEP_FILE) $(DEPS)

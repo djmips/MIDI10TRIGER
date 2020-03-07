@@ -1,6 +1,8 @@
 // Copyright 2009 Emilie Gillet.
 //
-// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
+// Author: Peter Kvitek (pete@kvitek.com)
+//
+// Based on DebouncedSwitches code by Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,89 +18,55 @@
 // -----------------------------------------------------------------------------
 //
 // Debouncing for:
-// - A single switch.
-// - An array of switches.
+// - An array of switches connected to a parallel port.
 
-#ifndef AVRLIB_DEVICES_SWITCH_H_
-#define AVRLIB_DEVICES_SWITCH_H_
+#ifndef AVRLIB_DEVICES_SWITCH_ARRAY_H_
+#define AVRLIB_DEVICES_SWITCH_ARRAY_H_
 
 #include <string.h>
 
-#include "avrlib/devices/shift_register.h"
+#include "avrlib/parallel_io.h"
 #include "avrlib/size_to_type.h"
 
 namespace avrlib {
-  
-template<typename Input, bool enable_pull_up = true>
-class DebouncedSwitch {
- public:
-  DebouncedSwitch() { }
-    
-  static inline void Init() {
-    Input::set_mode(DIGITAL_INPUT);
-    if (enable_pull_up) {
-      Input::High();
-    }
-    state_ = 0xff;
-  }
 
-  // To be called at a rate < 1000 Hz.
-  static inline uint8_t Read() {
-    state_ = (state_ << 1) | Input::value();
-    return state_;
-  }
-
-  static inline uint8_t lowered() { return state_ == 0x80; }
-  static inline uint8_t raised() { return state_ == 0x7f; }
-  static inline uint8_t high() { return state_ == 0xff; }
-  static inline uint8_t low() { return state_ == 0x00; }
-  static inline uint8_t state() { return state_; }
-  static inline uint8_t immediate_value() { return Input::value(); }
-
- private:
-  static uint8_t state_;
-
-  DISALLOW_COPY_AND_ASSIGN(DebouncedSwitch);
-};
-
-/* static */
-template<typename Input, bool enable_pull_up>
-uint8_t DebouncedSwitch<Input, enable_pull_up>::state_;
-
-
-template<typename Load, typename Clock, typename Data, uint8_t num_inputs, DataOrder order = LSB_FIRST>
-class DebouncedSwitches {
+template<uint8_t num_inputs, typename Port, ParallelPortMode parallel_mode, bool enable_pull_up = true>
+class SwitchArray {
   typedef typename DataTypeForSize<num_inputs>::Type T;
-  typedef ShiftRegisterInput<
-      Load, Clock, Data, 8 * sizeof(T), order> Register;
+  typedef ParallelPort<Port, parallel_mode> Register;
 
  public:
-  DebouncedSwitches() { }
+  SwitchArray() { }
+
+  enum { NumInputs = num_inputs };
 
   static inline void Init() {
-    Register::Init();
     memset(state_, 0xff, sizeof(state_));
+    Register::set_mode(DIGITAL_INPUT);
+    if (enable_pull_up) {
+      Register::EnablePullUpResistors();
+    }
   }
-  
+
   static inline T ReadRegister() {
     return Register::Read();
   }
-  
+
   static inline void Process(T value) {
-    T mask = 1 << (num_inputs - 1);
+    T mask = 1;
     for (uint8_t i = 0; i < num_inputs; ++i) {
       state_[i] <<= 1;
       if (value & mask) {
          state_[i] |= 1;
       }
-      mask >>= 1;
+      mask <<= 1;
     }
   }
-  
+
   static inline void Read() {
     Process(ReadRegister());
   }
-  
+
   static inline uint8_t lowered(uint8_t index) { return state_[index] == 0x80; }
   static inline uint8_t raised(uint8_t index) { return state_[index] == 0x7f; }
   static inline uint8_t high(uint8_t index) { return state_[index] == 0xff; }
@@ -116,12 +84,12 @@ class DebouncedSwitches {
  private:
   static uint8_t state_[num_inputs];
 
-  DISALLOW_COPY_AND_ASSIGN(DebouncedSwitches);
+  DISALLOW_COPY_AND_ASSIGN(SwitchArray);
 };
 
-template<typename Load, typename Clock, typename Data, uint8_t num_inputs, DataOrder order>
-uint8_t DebouncedSwitches<Load, Clock, Data, num_inputs, order>::state_[num_inputs];
+template<uint8_t num_inputs, typename Port, ParallelPortMode parallel_mode, bool enable_pull_up>
+uint8_t SwitchArray<num_inputs, Port, parallel_mode, enable_pull_up>::state_[num_inputs];
 
 }  // namespace avrlib
 
-#endif   // AVRLIB_DEVICES_SWITCH_H_
+#endif   // AVRLIB_DEVICES_SWITCH_ARRAY_H_

@@ -1,6 +1,6 @@
-// Copyright 2009 Olivier Gillet.
+// Copyright 2009 Emilie Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -50,6 +50,11 @@ class Random {
   static inline uint16_t GetWord() {
     Update();
     return state();
+  }
+
+  static int16_t Get(int16_t min, int16_t max) {
+    Update();
+    return min + (static_cast<int32_t>(state()) * (max - min + 1)) / 65536;
   }
 
  private:

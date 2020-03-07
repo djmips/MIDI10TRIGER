@@ -1,6 +1,6 @@
-// Copyright 2009 Olivier Gillet.
+// Copyright 2009 Emilie Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ typedef Port<PINBRegister, PORTBRegister, DDRBRegister> PortB;
 typedef Port<PINCRegister, PORTCRegister, DDRCRegister> PortC;
 typedef Port<PINDRegister, PORTDRegister, DDRDRegister> PortD;
 
-#if defined(ATMEGA164P) || defined(ATMEGA324P) || defined(ATMEGA644P) || defined(ATMEGA1284P)
+#if defined(ATMEGA164P) || defined(ATMEGA324P) || defined(ATMEGA644P) || defined(ATMEGA1284P) || defined(ATMEGA2560)
 
 IORegister(DDRA);
 IORegister(PORTA);
@@ -79,6 +79,40 @@ typedef Port<PINARegister, PORTARegister, DDRARegister> PortA;
 
 #endif
 
+#if defined (ATMEGA640) || defined (ATMEGA1280) || defined(ATMEGA2560)
+IORegister(DDRE);
+IORegister(DDRF);
+IORegister(DDRG);
+IORegister(DDRH);
+IORegister(DDRJ);
+IORegister(DDRK);
+IORegister(DDRL);
+
+IORegister(PORTE);
+IORegister(PORTF);
+IORegister(PORTG);
+IORegister(PORTH);
+IORegister(PORTJ);
+IORegister(PORTK);
+IORegister(PORTL);
+
+IORegister(PINE);
+IORegister(PINF);
+IORegister(PING);
+IORegister(PINH);
+IORegister(PINJ);
+IORegister(PINK);
+IORegister(PINL);
+
+typedef Port<PINERegister, PORTERegister, DDRERegister> PortE;
+typedef Port<PINFRegister, PORTFRegister, DDRFRegister> PortF;
+typedef Port<PINGRegister, PORTGRegister, DDRGRegister> PortG;
+typedef Port<PINHRegister, PORTHRegister, DDRHRegister> PortH;
+typedef Port<PINJRegister, PORTJRegister, DDRJRegister> PortJ;
+typedef Port<PINKRegister, PORTKRegister, DDRKRegister> PortK;
+typedef Port<PINLRegister, PORTLRegister, DDRLRegister> PortL;
+
+#endif
 
 
 // The actual implementation of a pin, not very convenient to use because it
@@ -293,9 +327,128 @@ typedef Gpio<PortD, 2> UartSpi1RX;
 #define HAS_USART0
 #define HAS_USART1
 
-#ifdef ATMEGA1284P
+#if defined(ATMEGA1284P) || defined(ATMEGA640) || defined(ATMEGA1280)  \
+	|| defined(ATMEGA2560)
 #define HAS_TIMER3
 #endif
+
+#elif defined (ATMEGA640) || defined(ATMEGA1280) || defined(ATMEGA2560)
+
+SetupGpio(0,  PortB, NoPwmChannel, 0);
+SetupGpio(1,  PortB, NoPwmChannel, 1);
+SetupGpio(2,  PortB, NoPwmChannel, 2);
+SetupGpio(3,  PortB, NoPwmChannel, 3);
+SetupGpio(4,  PortB, PwmChannel2A, 4);
+SetupGpio(5,  PortB, PwmChannel1A, 5);
+SetupGpio(6,  PortB, PwmChannel1B, 6);
+SetupGpio(7,  PortB, PwmChannel0A, 7);
+
+SetupGpio(8,  PortD, NoPwmChannel, 0);
+SetupGpio(9,  PortD, NoPwmChannel, 1);
+SetupGpio(10, PortD, NoPwmChannel, 2);
+SetupGpio(11, PortD, NoPwmChannel, 3);
+SetupGpio(12, PortD, NoPwmChannel, 4);
+SetupGpio(13, PortD, NoPwmChannel, 5);
+SetupGpio(14, PortD, NoPwmChannel, 6);
+SetupGpio(15, PortD, NoPwmChannel, 7);
+
+SetupGpio(16, PortC, NoPwmChannel, 0);
+SetupGpio(17, PortC, NoPwmChannel, 1);
+SetupGpio(18, PortC, NoPwmChannel, 2);
+SetupGpio(19, PortC, NoPwmChannel, 3);
+SetupGpio(20, PortC, NoPwmChannel, 4);
+SetupGpio(21, PortC, NoPwmChannel, 5);
+SetupGpio(22, PortC, NoPwmChannel, 6);
+SetupGpio(23, PortC, NoPwmChannel, 7);
+
+SetupGpio(24, PortE, NoPwmChannel, 0);
+SetupGpio(25, PortE, NoPwmChannel, 1);
+SetupGpio(26, PortE, NoPwmChannel, 2);
+SetupGpio(27, PortE, NoPwmChannel, 3);
+SetupGpio(28, PortE, NoPwmChannel, 4);
+SetupGpio(29, PortE, NoPwmChannel, 5);
+SetupGpio(30, PortE, NoPwmChannel, 6);
+SetupGpio(31, PortE, NoPwmChannel, 7);
+
+SetupGpio(32, PortF, NoPwmChannel, 0);
+SetupGpio(33, PortF, NoPwmChannel, 1);
+SetupGpio(34, PortF, NoPwmChannel, 2);
+SetupGpio(35, PortF, NoPwmChannel, 3);
+SetupGpio(36, PortF, NoPwmChannel, 4);
+SetupGpio(37, PortF, NoPwmChannel, 5);
+SetupGpio(38, PortF, NoPwmChannel, 6);
+SetupGpio(39, PortF, NoPwmChannel, 7);
+
+SetupGpio(40, PortG, NoPwmChannel, 0);
+SetupGpio(41, PortG, NoPwmChannel, 1);
+SetupGpio(42, PortG, NoPwmChannel, 2);
+SetupGpio(43, PortG, NoPwmChannel, 3);
+SetupGpio(44, PortG, NoPwmChannel, 4);
+SetupGpio(45, PortG, NoPwmChannel, 5);
+SetupGpio(46, PortG, NoPwmChannel, 6);
+SetupGpio(47, PortG, NoPwmChannel, 7);
+
+SetupGpio(48, PortH, NoPwmChannel, 0);
+SetupGpio(49, PortH, NoPwmChannel, 1);
+SetupGpio(50, PortH, NoPwmChannel, 2);
+SetupGpio(51, PortH, NoPwmChannel, 3);
+SetupGpio(52, PortH, NoPwmChannel, 4);
+SetupGpio(53, PortH, NoPwmChannel, 5);
+SetupGpio(54, PortH, NoPwmChannel, 6);
+SetupGpio(55, PortH, NoPwmChannel, 7);
+
+SetupGpio(56, PortJ, NoPwmChannel, 0);
+SetupGpio(57, PortJ, NoPwmChannel, 1);
+SetupGpio(58, PortJ, NoPwmChannel, 2);
+SetupGpio(59, PortJ, NoPwmChannel, 3);
+SetupGpio(60, PortJ, NoPwmChannel, 4);
+SetupGpio(61, PortJ, NoPwmChannel, 5);
+SetupGpio(62, PortJ, NoPwmChannel, 6);
+SetupGpio(63, PortJ, NoPwmChannel, 7);
+
+SetupGpio(64, PortK, NoPwmChannel, 0);
+SetupGpio(65, PortK, NoPwmChannel, 1);
+SetupGpio(66, PortK, NoPwmChannel, 2);
+SetupGpio(67, PortK, NoPwmChannel, 3);
+SetupGpio(68, PortK, NoPwmChannel, 4);
+SetupGpio(69, PortK, NoPwmChannel, 5);
+SetupGpio(70, PortK, NoPwmChannel, 6);
+SetupGpio(71, PortK, NoPwmChannel, 7);
+
+SetupGpio(72, PortL, NoPwmChannel, 0);
+SetupGpio(73, PortL, NoPwmChannel, 1);
+SetupGpio(74, PortL, NoPwmChannel, 2);
+SetupGpio(75, PortL, NoPwmChannel, 3);
+SetupGpio(76, PortL, NoPwmChannel, 4);
+SetupGpio(77, PortL, NoPwmChannel, 5);
+SetupGpio(78, PortL, NoPwmChannel, 6);
+SetupGpio(79, PortL, NoPwmChannel, 7);
+
+typedef Gpio<PortB, 0> SpiSS;
+typedef Gpio<PortB, 1> SpiSCK;
+typedef Gpio<PortB, 2> SpiMOSI;
+typedef Gpio<PortB, 3> SpiMISO;
+
+typedef Gpio<PortE, 2> UartSpi0XCK;
+typedef Gpio<PortE, 1> UartSpi0TX;
+typedef Gpio<PortE, 0> UartSpi0RX;
+
+typedef Gpio<PortD, 5> UartSpi1XCK;
+typedef Gpio<PortD, 3> UartSpi1TX;
+typedef Gpio<PortD, 2> UartSpi1RX;
+
+typedef Gpio<PortH, 2> UartSpi2XCK;
+typedef Gpio<PortH, 1> UartSpi2TX;
+typedef Gpio<PortH, 0> UartSpi2RX;
+
+typedef Gpio<PortJ, 2> UartSpi3XCK;
+typedef Gpio<PortJ, 1> UartSpi3TX;
+typedef Gpio<PortJ, 0> UartSpi3RX;
+
+#define HAS_USART0
+#define HAS_USART1
+#define HAS_USART2
+#define HAS_USART3
 
 #else
 

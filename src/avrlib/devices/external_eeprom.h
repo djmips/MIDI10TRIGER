@@ -1,6 +1,6 @@
-// Copyright 2009 Olivier Gillet.
+// Copyright 2009 Emilie Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -148,7 +148,7 @@ class ExternalEeprom {
     return Read();
   }
 
-  static inline uint8_t Read(uint16_t address, uint8_t size, uint8_t* data) {
+  static inline uint16_t Read(uint16_t address, uint16_t size, uint8_t* data) {
     if (!SetAddress(address)) {
       return 0;
     } else {
